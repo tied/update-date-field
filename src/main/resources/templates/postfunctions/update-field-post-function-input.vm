@@ -1,0 +1,8 @@
+<tr>
+    <td class="fieldLabelArea">
+        CustomField to update with the current date:
+    </td>
+    <td nowrap>
+        <input name="customField" id="customField" value="$customField" />
+    </td>
+</tr>
