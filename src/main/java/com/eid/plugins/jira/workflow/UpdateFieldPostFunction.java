@@ -16,6 +16,9 @@ import com.atlassian.jira.issue.ModifiedValue;
 import com.atlassian.jira.issue.customfields.manager.OptionsManager;
 import com.atlassian.jira.issue.customfields.option.Option;
 import com.atlassian.jira.util.ImportUtils;
+import com.atlassian.jira.ComponentManager;
+import com.opensymphony.workflow.WorkflowContext;
+import com.atlassian.jira.issue.comments.CommentManager;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 
@@ -30,6 +33,7 @@ public class UpdateFieldPostFunction extends AbstractJiraFunctionProvider
 {
     private static final Logger log = LoggerFactory.getLogger(UpdateFieldPostFunction.class);
     public static final String FIELD_MESSAGE = "customField";
+    public static final String ACTIVITY_OPALE = "Code Activité OPALE";
  
     public void execute(Map transientVars, Map args, PropertySet ps) throws WorkflowException
     {
@@ -45,6 +49,15 @@ public class UpdateFieldPostFunction extends AbstractJiraFunctionProvider
     
             if (null == valueField || valueField.equals( "01/01/0101") ) {
                 cf.updateValue(null, issue, new ModifiedValue(valueField, new SimpleDateFormat("dd/MM/yyyy").format(timestamp)),changeHolder);
+
+                // Update OPALE
+                CustomField cfOpale = customFieldManager.getCustomFieldObjectByName(ACTIVITY_OPALE);
+                String codeActivity = (String)issue.getCustomFieldValue(cfOpale);
+                CommentManager commentManager = (CommentManager) ComponentManager.getComponentInstanceOfType(CommentManager.class);
+                valueField = (String)issue.getCustomFieldValue(cf);
+                String comment = "Activité OPALE " + codeActivity + " mise à jour du jalon : " + custFieldName + " = " + valueField;
+                String currentUser = ((WorkflowContext) transientVars.get("context")).getCaller();
+                commentManager.create(issue, currentUser, comment, true);
             }
         }
         else {
@@ -53,4 +66,5 @@ public class UpdateFieldPostFunction extends AbstractJiraFunctionProvider
         }
 
     }
-}
+
+ }
